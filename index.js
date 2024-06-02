@@ -23,5 +23,3 @@ mongoose.connect(dburl)
         .catch(()=>{
             console.log("Something happened...")
         })
-
-
