@@ -7,10 +7,10 @@
     }
   ],
   "routes": [
-    { "handle": "filesystem" }, // Serve static files
+    { "handle": "filesystem" },
     {
-      "src": "/(.*)", // Match all routes
-      "dest": "/index.js" // Forward requests to index.js
+      "src": "/(.*)",
+      "dest": "/index.js"
     }
   ]
 }
