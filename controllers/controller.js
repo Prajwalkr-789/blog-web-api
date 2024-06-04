@@ -59,3 +59,18 @@ module.exports.createblog = (req,res) =>{
         res.status(401).send({message : "Something happened while Creating the blog"})
     }
 }
+
+module.exports.fetchdata =async (req,res) =>{
+    try {
+        const data = await Blog.find({});
+        if(data){
+            res.json(data).status(201)
+        }
+        else{
+            res.status(401).send({message : "Not succesful"})
+        }
+        
+    } catch (error) {
+        console.error(error)
+    }
+}

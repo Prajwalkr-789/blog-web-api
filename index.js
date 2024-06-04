@@ -28,5 +28,4 @@ mongoose.connect(dburl)
         console.error("Something happened...", err);
     });
 
-// Export the app for Vercel
 module.exports = app;
