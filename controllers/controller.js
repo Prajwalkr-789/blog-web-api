@@ -73,6 +73,6 @@ module.exports.fetchdata =async (req,res) =>{
         
     } catch (error) {
         console.error(error)
-        res.status.send({message : "Fetching data failed..."})
+        res.status(404).send({message : "Fetching data failed..."})
     }
 }
