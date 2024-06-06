@@ -23,6 +23,7 @@ module.exports.sign_up = async (req,res) =>{
     }
     } catch (error) {
         console.error(error)
+        
     }
     
 }
@@ -72,5 +73,6 @@ module.exports.fetchdata =async (req,res) =>{
         
     } catch (error) {
         console.error(error)
+        res.status.send({message : "Fetching data failed..."})
     }
 }
