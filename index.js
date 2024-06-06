@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -16,9 +18,7 @@ app.get('/', (req, res) => {
     res.json('Jai shree ram');
 });
 
-const dburl = 'mongodb+srv://prajwalkrp07:SVOzVfzrl7mJiUyA@cluster0.jpkht3e.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-
-mongoose.connect(dburl)
+mongoose.connect(process.env.DB_URL)
     .then(() => {
         app.listen(PORT, () => {
             console.log("Server started and connected to database...");

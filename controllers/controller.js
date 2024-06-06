@@ -15,7 +15,7 @@ module.exports.sign_up = async (req,res) =>{
     })
     if(user){
         const token = createtoken(user._id)
-        res.cookie('jwt' , token,{httponly : true,maxAge : 24 *24 *60*60*12})
+        res.cookie('jwt' , token,{httponly : true,maxAge : 24 *24 *60*60*12 , secure:true})
         res.status(201).send({message : "Success"})
     }
     else{
@@ -33,7 +33,7 @@ module.exports.login = (req,res)=>{
    const check =  User.checklogin(username,password)
    if(check){
         const token = createtoken(check._id)
-        res.cookie('jwt',token,{httponly : true})
+        res.cookie('jwt',token,{httponly : true,secure : true})
         res.status(201).send("Success")
    }
    else{
