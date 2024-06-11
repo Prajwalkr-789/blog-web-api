@@ -26,19 +26,22 @@ module.exports.sign_up = async (req,res) =>{
     
 }
 
-module.exports.login = async (req,res)=>{
-    const {username,password} = req.body;
-   const check = await User.checklogin(username,password)
+module.exports.login = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const check = await User.checklogin(username, password);
 
-   if(check){
-        const token = await createtoken(check._id)
-        await res.cookie('jwt', token , {httponly : true,maxAge : maxAge * 1000});
-        res.status(201).send("Success")
-   }
-   else{
-    res.status(401).send(false)
-   }
-}
+        if (check) {
+            const token = await createtoken(check._id);
+            res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+            res.status(200).send("Success");
+        } else {
+            res.status(401).send({ error: "Invalid username or password" });
+        }
+    } catch (error) {
+        res.status(500).send({ error: "Internal server error" });
+    }
+};
 
 module.exports.logout = (req,res) =>{
     res.clearCookie('jwt');
