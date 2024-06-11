@@ -14,7 +14,6 @@ app.use(express.json({ limit: '2mb' }));
 app.use(cookieParser({ limit: '2mb' }));
 app.use(bodyParser.json())
 app.use(cors({
-    origin: 'http://localhost:3000', 
     credentials: true
 }));
 app.use('/user', routes);
