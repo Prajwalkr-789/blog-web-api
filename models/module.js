@@ -30,12 +30,13 @@ userSchema.statics.checklogin = async function (username, password, res) {
     if (user) {
       const checkpass = await bcrypt.compare(password, user.password);
       if (checkpass) {
-        return res.status(201).send({ user });
+        return user;
       } else {
-        return res.status(401).send({ message: 'Unsuccessful' });
+        throw Error('Password is wrong')
       }
     } else {
-      return res.status(401).send({ message: 'The username is not found' });
+    //   return res.status(401).send({ message: 'The username is not found' });
+    throw Error('Username not found')
     }
   };
 

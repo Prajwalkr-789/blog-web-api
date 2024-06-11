@@ -1,10 +1,8 @@
 const {User,Blog} = require('../models/module')
 const jwt = require('jsonwebtoken')
-
+const maxAge =  24 * 60 *60;
 const createtoken = async (id) =>{
-   return await jwt.sign({id},'Prajwal kr',()=>{
-        console.log("Error occured")
-    })
+   return await jwt.sign({id},'Prajwal kr',{expiresIn : maxAge})
 }
 
 module.exports.sign_up = async (req,res) =>{
@@ -15,7 +13,7 @@ module.exports.sign_up = async (req,res) =>{
     })
     if(user){
         const token = createtoken(user._id)
-        res.cookie('jwt' , token,{httponly : true,maxAge : 24 *24 *60*60*12 , secure:true})
+        res.cookie('jwt' , token,{httponly : true,maxAge : maxAge * 1000 })
         res.status(201).send({message : "Success"})
     }
     else{
@@ -28,16 +26,17 @@ module.exports.sign_up = async (req,res) =>{
     
 }
 
-module.exports.login = (req,res)=>{
+module.exports.login = async (req,res)=>{
     const {username,password} = req.body;
-   const check =  User.checklogin(username,password)
+   const check = await User.checklogin(username,password)
+
    if(check){
-        const token = createtoken(check._id)
-        res.cookie('jwt',token,{httponly : true,secure : true})
+        const token = await createtoken(check._id)
+        await res.cookie('jwt', token , {httponly : true,maxAge : maxAge * 1000});
         res.status(201).send("Success")
    }
    else{
-    res.status(404).send("Not an user")
+    res.status(401).send(false)
    }
 }
 
@@ -76,3 +75,23 @@ module.exports.fetchdata =async (req,res) =>{
         res.status(404).send({message : "Fetching data failed..."})
     }
 }
+
+module.exports.authentication =async (req,res) =>{
+    console.log("Hitt")
+    try {
+        // console.log("The request" , req.cookies.jwt)
+        const token = await req.cookies.jwt; 
+        console.log("I am auth token : " , token)
+        if (token === ' ' || token === undefined) {
+            return res.status(401).send({ message: 'Token not found' });
+        }
+        const verified = await jwt.verify(token, 'Prajwal kr');
+        if (verified) {
+            res.status(201).send({ message: 'Success' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+}
+
