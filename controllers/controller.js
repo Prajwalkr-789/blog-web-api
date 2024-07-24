@@ -1,39 +1,40 @@
 const {User,Blog} = require('../models/module')
 const jwt = require('jsonwebtoken')
-const maxAge =  24 * 60 *60;
+const maxAge =  2*24 * 60 *60;
 const createtoken = async (id) =>{
    return await jwt.sign({id},'Prajwal kr',{expiresIn : maxAge})
 }
 
-module.exports.sign_up = async (req,res) =>{
-    const {username,password} = req.body
+module.exports.sign_up = async (req, res) => {
+    const { username, password } = req.body;
     try {
-        const user = await User.create({
-        username,password
-    })
-    if(user){
-        const token = createtoken(user._id)
-        res.cookie('jwt' , token,{httponly : true,maxAge : maxAge * 1000 })
-        res.status(201).send({message : "Success"})
-    }
-    else{
-        res.status(404).send({message : "Not scuccessful"})
-    }
+        const user = await User.create({ username, password });
+        if (user) {
+            const token = await createtoken(user._id);
+            // console.log(token)
+            res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+            res.status(201).send({ message: "Success" });
+        } else {
+            res.status(400).send({ message: "Signup not successful" });
+        }
     } catch (error) {
-        console.error(error)
-        
+        console.error(error);
+        res.status(500).send({ message: "Internal server error" });
     }
-    
-}
+};
 
 module.exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
+        console.log(username,password);
         const check = await User.checklogin(username, password);
-
+        console.log(check)
         if (check) {
             const token = await createtoken(check._id);
-            res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+            res.cookie('jwt', token, {
+                httpOnly: true,
+                maxAge: maxAge * 1000,
+             });
             res.status(200).send("Success");
         } else {
             res.status(401).send({ error: "Invalid username or password" });
@@ -48,12 +49,12 @@ module.exports.logout = (req,res) =>{
     res.status(201).send({status : "Logged out successfully"})
 }
 
-module.exports.createblog = (req,res) =>{
+module.exports.createblog = async (req,res) =>{
     const {title,image,description,category,content,author} = req.body
     try {
-        const blogu = Blog.create({title,image,description,category,content,author})
+        const blogu = await Blog.create({title,image,description,category,content,author})
         if(blogu){
-            res.status(201).send({message : "Blog Created"})
+            res.status(200).send({message : "Blog Created"})
         }
         else{
             res.status(401).send({message : "Blog not Created"})
@@ -79,22 +80,29 @@ module.exports.fetchdata =async (req,res) =>{
     }
 }
 
-module.exports.authentication =async (req,res) =>{
-    console.log("Hitt")
+module.exports.authentication = async (req, res) => {
+    console.log("Hitting authentication endpoint");
+
     try {
-        // console.log("The request" , req.cookies.jwt)
-        const token = await req.cookies.jwt; 
-        console.log("I am auth token : " , token)
-        if (token === ' ' || token === undefined) {
+        const token = req.cookies.jwt; 
+        console.log("Authentication token: ", token);
+
+        if (!token) {
+            // Token is undefined or null
             return res.status(401).send({ message: 'Token not found' });
         }
+
+        // Verify the token
         const verified = await jwt.verify(token, 'Prajwal kr');
         if (verified) {
-            res.status(201).send({ message: 'Success' });
+            return res.status(200).send({ message: 'Success' });
+        } else {
+            return res.status(401).send({ message: 'Invalid token' });
         }
+        
     } catch (error) {
-        console.error(error);
-        res.status(500).send({ message: 'Internal server error' });
+        console.error("Error during authentication: ", error);
+        return res.status(500).send({ message: 'Internal server error' });
     }
 }
 
